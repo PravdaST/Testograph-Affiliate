@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '10');
 
     // Get authenticated user from cookie
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const authCookie = cookieStore.get('sb-access-token');
 
     if (!authCookie) {

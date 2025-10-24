@@ -10,7 +10,7 @@ const supabase = createClient(
 export async function GET(request: Request) {
   try {
     // Get authenticated user from cookie
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const authCookie = cookieStore.get('sb-access-token');
 
     if (!authCookie) {
