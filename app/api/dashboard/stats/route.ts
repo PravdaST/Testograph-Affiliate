@@ -1,28 +1,13 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_SUPABASE_SERVICE_ROLE_KEY!
-);
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: Request) {
   try {
-    // Get authenticated user from cookie
-    const cookieStore = await cookies();
-    const authCookie = cookieStore.get('sb-access-token');
+    // Get authenticated user from Supabase SSR
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-    if (!authCookie) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Get affiliate ID from auth
-    const { data: { user } } = await supabase.auth.getUser(authCookie.value);
-    if (!user) {
+    if (userError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

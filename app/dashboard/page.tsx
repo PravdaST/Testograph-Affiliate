@@ -267,7 +267,7 @@ export default function DashboardPage() {
                 <strong>URL за споделяне:</strong>
               </p>
               <code className="text-xs break-all">
-                https://testograph.com?ref={affiliate.promo_code}
+                https://shop.testograph.eu?discount={affiliate.promo_code}
               </code>
             </div>
           </CardContent>
@@ -283,7 +283,7 @@ export default function DashboardPage() {
           <CardContent className="flex flex-col items-center">
             <div className="bg-white p-4 rounded-lg">
               <QRCodeSVG
-                value={`https://testograph.com?ref=${affiliate.promo_code}`}
+                value={`https://shop.testograph.eu?discount=${affiliate.promo_code}`}
                 size={200}
                 level="H"
                 includeMargin={true}
