@@ -1,8 +1,16 @@
 // Affiliate Types
 
 export type ExperienceLevel = 'professional' | 'hobby' | 'beginner'
-export type AudienceSize = '0-1k' | '1k-10k' | '10k-50k' | '50k+'
-export type PromotionChannel = 'social' | 'youtube' | 'website' | 'personal'
+export type AudienceSize = 'small' | 'medium' | 'large'
+export type PromotionChannel =
+  | 'instagram'
+  | 'facebook'
+  | 'tiktok'
+  | 'youtube'
+  | 'blog'
+  | 'email'
+  | 'telegram'
+  | 'other'
 export type ProductInterest = 'testoup' | 'bundles' | 'all'
 
 export interface QuizAnswers {

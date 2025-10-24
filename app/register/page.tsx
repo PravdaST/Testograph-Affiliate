@@ -11,10 +11,37 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Loader2, Check, Home } from 'lucide-react';
+import { toast } from 'sonner';
+import { Checkbox } from '@/components/ui/checkbox';
+import Link from 'next/link';
 import type { QuizAnswers, ExperienceLevel, PromotionChannel, AudienceSize, ProductInterest } from '@/types/affiliate';
 
 const TOTAL_STEPS = 5;
+
+// Channel icons/emojis
+const channelIcons: Record<PromotionChannel, string> = {
+  instagram: '📸',
+  facebook: '👥',
+  tiktok: '🎵',
+  youtube: '▶️',
+  blog: '✍️',
+  email: '📧',
+  telegram: '✈️',
+  other: '🌐',
+};
+
+// Channel labels
+const channelLabels: Record<PromotionChannel, string> = {
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  tiktok: 'TikTok',
+  youtube: 'YouTube',
+  blog: 'Blog/Website',
+  email: 'Email списък',
+  telegram: 'Telegram',
+  other: 'Други канали',
+};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -95,25 +122,32 @@ export default function RegisterPage() {
 
       if (response.ok) {
         // Success - redirect to thank you page
+        toast.success('Заявката е изпратена успешно!');
         router.push('/register/success');
       } else {
-        alert(data.error || 'Грешка при подаване на заявката');
+        toast.error(data.error || 'Грешка при подаване на заявката');
       }
     } catch (error) {
       console.error('Registration error:', error);
-      alert('Грешка при подаване на заявката');
+      toast.error('Грешка при подаване на заявката. Моля опитай отново.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted py-12">
-      <div className="container max-w-2xl px-4">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted py-12 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Back to Home */}
+        <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-6 transition-colors">
+          <Home className="h-4 w-4 mr-2" />
+          Обратно към началната страница
+        </Link>
+
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2">Присъедини се към Testograph</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Присъедини се към Testograph</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
             Отговори на 5 кратки въпроса и стани партньор
           </p>
         </div>
@@ -130,7 +164,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Quiz Steps */}
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle>
               {currentStep === 1 && 'Твоите данни'}
@@ -224,22 +258,35 @@ export default function RegisterPage() {
                 <p className="text-sm text-muted-foreground mb-4">
                   Избери всички канали, които ще използваш (поне един)
                 </p>
-                {(['instagram', 'facebook', 'tiktok', 'youtube', 'blog', 'email', 'telegram', 'other'] as PromotionChannel[]).map(channel => (
-                  <div
-                    key={channel}
-                    onClick={() => handleChannelToggle(channel)}
-                    className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                      channels.includes(channel)
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'hover:bg-accent'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium capitalize">{channel}</span>
-                      {channels.includes(channel) && <CheckCircle className="h-5 w-5" />}
+                {(['instagram', 'facebook', 'tiktok', 'youtube', 'blog', 'email', 'telegram', 'other'] as PromotionChannel[]).map(channel => {
+                  const isSelected = channels.includes(channel);
+                  return (
+                    <div
+                      key={channel}
+                      onClick={() => handleChannelToggle(channel)}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                        isSelected
+                          ? 'bg-primary/10 border-primary shadow-sm'
+                          : 'border-border hover:border-primary/50 hover:bg-accent'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
+                          isSelected
+                            ? 'bg-primary border-primary'
+                            : 'border-muted-foreground'
+                        }`}>
+                          {isSelected && <Check className="h-4 w-4 text-primary-foreground" />}
+                        </div>
+                        <span className="text-2xl">{channelIcons[channel]}</span>
+                        <span className="font-medium flex-1">{channelLabels[channel]}</span>
+                        {isSelected && (
+                          <Badge variant="default" className="text-xs">Избрано</Badge>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -277,27 +324,45 @@ export default function RegisterPage() {
               <div className="space-y-6">
                 <div>
                   <Label className="mb-3 block">Интересуващи продукти (избери поне един)</Label>
-                  <div className="space-y-2">
-                    {(['testoup', 'bundles', 'all'] as ProductInterest[]).map(product => (
-                      <div
-                        key={product}
-                        onClick={() => handleProductToggle(product)}
-                        className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                          products.includes(product)
-                            ? 'bg-primary text-primary-foreground border-primary'
-                            : 'hover:bg-accent'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">
-                            {product === 'testoup' && 'TestoUP (флагман продукт)'}
-                            {product === 'bundles' && 'Product Bundles'}
-                            {product === 'all' && 'Всички продукти'}
-                          </span>
-                          {products.includes(product) && <CheckCircle className="h-5 w-5" />}
+                  <div className="space-y-3">
+                    {(['testoup', 'bundles', 'all'] as ProductInterest[]).map(product => {
+                      const isSelected = products.includes(product);
+                      const productInfo = {
+                        testoup: { emoji: '💪', label: 'TestoUP', desc: 'Флагман продукт за тестостерон' },
+                        bundles: { emoji: '📦', label: 'Product Bundles', desc: 'Комбинирани оферти' },
+                        all: { emoji: '🌟', label: 'Всички продукти', desc: 'Целият каталог' },
+                      }[product];
+
+                      return (
+                        <div
+                          key={product}
+                          onClick={() => handleProductToggle(product)}
+                          className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                            isSelected
+                              ? 'bg-primary/10 border-primary shadow-sm'
+                              : 'border-border hover:border-primary/50 hover:bg-accent'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
+                              isSelected
+                                ? 'bg-primary border-primary'
+                                : 'border-muted-foreground'
+                            }`}>
+                              {isSelected && <Check className="h-4 w-4 text-primary-foreground" />}
+                            </div>
+                            <span className="text-2xl">{productInfo.emoji}</span>
+                            <div className="flex-1">
+                              <div className="font-medium">{productInfo.label}</div>
+                              <div className="text-xs text-muted-foreground">{productInfo.desc}</div>
+                            </div>
+                            {isSelected && (
+                              <Badge variant="default" className="text-xs">Избрано</Badge>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
